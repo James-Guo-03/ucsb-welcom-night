@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>JHUCSSA春晚抽奖</title>
+    <title>UCSB Welcome Night 抽奖</title>
     <style>
       * {
         margin: 0;
@@ -24,7 +24,6 @@
         position: relative;
       }
 
-      /* Overlay for better readability */
       body::before {
         content: '';
         position: fixed;
@@ -36,7 +35,6 @@
         z-index: 0;
       }
 
-      /* Fireworks Canvas */
       #fireworks {
         position: fixed;
         top: 0;
@@ -47,7 +45,6 @@
         z-index: 1;
       }
 
-      /* Container */
       .container {
         position: relative;
         z-index: 3;
@@ -59,7 +56,6 @@
         flex-direction: column;
       }
 
-      /* Header */
       .header {
         text-align: center;
         color: #8b4513;
@@ -119,14 +115,14 @@
           0 0 10px rgba(255, 215, 0, 0.5);
       }
 
-      /* Reset Button */
-      .reset-btn {
-        font-family:
-          'Songti SC', 'STXingkai', 'Kaiti SC', 'KaiTi', 'STKaiti', 'BiauKai', '楷体', serif;
+      .menu-wrap {
         position: fixed;
         top: 20px;
         right: 20px;
         z-index: 100;
+      }
+
+      .menu-btn {
         padding: 10px 20px;
         background: rgba(255, 255, 255, 0.4);
         color: #5c3317;
@@ -142,13 +138,88 @@
         text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5);
       }
 
-      .reset-btn:hover {
+      .menu-btn:hover {
         background: rgba(255, 215, 0, 0.5);
         transform: scale(1.05);
         border-color: #8b4513;
       }
 
-      /* Audio Control */
+      .menu-dropdown {
+        display: none;
+        position: absolute;
+        top: calc(100% + 8px);
+        right: 0;
+        min-width: 280px;
+        background: rgba(255, 255, 255, 0.92);
+        border: 2px solid rgba(139, 69, 19, 0.5);
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        overflow: hidden;
+      }
+
+      .menu-dropdown.open {
+        display: block;
+      }
+
+      .menu-dropdown button {
+        display: block;
+        width: 100%;
+        padding: 12px 16px;
+        background: transparent;
+        border: none;
+        border-bottom: 1px solid rgba(139, 69, 19, 0.2);
+        color: #5c3317;
+        font-size: 14px;
+        font-weight: bold;
+        text-align: left;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+
+      .menu-dropdown > button:hover {
+        background: rgba(255, 215, 0, 0.35);
+      }
+
+      .menu-history {
+        border-top: 1px solid rgba(139, 69, 19, 0.2);
+        padding: 10px 12px 12px;
+        max-height: 280px;
+        overflow-y: auto;
+      }
+
+      .menu-history h4 {
+        color: #5c3317;
+        font-size: 13px;
+        margin-bottom: 8px;
+      }
+
+      .menu-history .history-list {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .menu-history .history-item {
+        background: rgba(255, 215, 0, 0.18);
+        border: 1px solid rgba(139, 69, 19, 0.25);
+        border-radius: 8px;
+        padding: 8px 10px;
+        color: #5c3317;
+        font-size: 12px;
+        line-height: 1.4;
+      }
+
+      .menu-history .history-item strong {
+        color: #8b0000;
+      }
+
+      .menu-history .empty {
+        color: #7a5a3a;
+        font-size: 12px;
+      }
+
       .audio-control {
         position: fixed;
         bottom: 20px;
@@ -230,7 +301,6 @@
         min-width: 35px;
       }
 
-      /* Fetch Section - Top Left Corner */
       .fetch-section {
         position: fixed;
         top: 20px;
@@ -240,7 +310,7 @@
         padding: 15px;
         border-radius: 15px;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-        max-width: 220px;
+        max-width: 240px;
         backdrop-filter: blur(10px);
         -webkit-backdrop-filter: blur(10px);
         border: 2px solid rgba(139, 69, 19, 0.4);
@@ -256,27 +326,61 @@
 
       .candidates-info {
         background: rgba(255, 215, 0, 0.2);
-        padding: 8px;
+        padding: 0;
         border-radius: 8px;
         margin-bottom: 10px;
         border: 2px solid rgba(139, 69, 19, 0.5);
+        overflow: hidden;
+      }
+
+      .candidates-toggle {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 8px;
+        background: transparent;
+        border: none;
+        color: #5c3317;
+        font-size: 12px;
+        font-weight: bold;
+        cursor: pointer;
+        text-align: left;
+        text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5);
+      }
+
+      .candidates-toggle:hover {
+        background: rgba(255, 215, 0, 0.2);
+      }
+
+      .candidates-toggle .chevron {
+        flex-shrink: 0;
+        transition: transform 0.2s;
+      }
+
+      .candidates-info.expanded .candidates-toggle .chevron {
+        transform: rotate(180deg);
+      }
+
+      .candidates-details {
+        display: none;
+        padding: 0 8px 8px;
+        border-top: 1px solid rgba(139, 69, 19, 0.3);
+      }
+
+      .candidates-info.expanded .candidates-details {
+        display: block;
       }
 
       .candidates-info p {
         color: #5c3317;
         font-size: 11px;
-        margin: 3px 0;
+        margin: 6px 0 0;
         text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5);
       }
 
-      .candidates-info .total {
-        font-size: 13px;
-        font-weight: bold;
-      }
-
       .fetch-btn {
-        font-family:
-          'Songti SC', 'STXingkai', 'Kaiti SC', 'KaiTi', 'STKaiti', 'BiauKai', '楷体', serif;
         width: 100%;
         padding: 10px;
         background: rgba(220, 20, 60, 0.5);
@@ -293,13 +397,17 @@
         text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
       }
 
-      .fetch-btn:hover {
+      .fetch-btn:hover:not(:disabled) {
         transform: translateY(-2px);
         box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
         background: rgba(220, 20, 60, 0.7);
       }
 
-      /* Notification */
+      .fetch-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
       .notification {
         position: fixed;
         top: 100px;
@@ -318,6 +426,8 @@
         -webkit-backdrop-filter: blur(10px);
         border: 2px solid rgba(139, 69, 19, 0.6);
         text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.7);
+        max-width: 90vw;
+        text-align: center;
       }
 
       @keyframes slideDown {
@@ -331,7 +441,6 @@
         }
       }
 
-      /* Lottery Section */
       .lottery-section {
         background: rgba(255, 255, 255, 0.4);
         padding: 30px;
@@ -344,67 +453,49 @@
         border: 2px solid rgba(255, 255, 255, 0.6);
       }
 
-      .count-selector {
+      .prize-panel {
         text-align: center;
         margin-bottom: 20px;
-      }
-
-      .count-selector label {
-        display: block;
-        color: #5c3317;
-        font-weight: bold;
-        margin-bottom: 10px;
-        font-size: 18px;
-        text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.7);
-      }
-
-      .count-buttons {
-        display: flex;
-        justify-content: center;
-        gap: 15px;
-      }
-
-      .count-btn {
-        font-family:
-          'Songti SC', 'STXingkai', 'Kaiti SC', 'KaiTi', 'STKaiti', 'BiauKai', '楷体', serif;
-        padding: 10px 25px;
-        background: rgba(255, 255, 255, 0.6);
-        color: #5c3317;
+        padding: 16px 20px;
+        background: rgba(255, 215, 0, 0.25);
         border: 2px solid rgba(139, 69, 19, 0.5);
-        border-radius: 12px;
+        border-radius: 14px;
+      }
+
+      .prize-panel .label {
+        color: #5c3317;
+        font-size: 14px;
+        font-weight: bold;
+        margin-bottom: 6px;
+        text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5);
+      }
+
+      .prize-panel .prize-level {
+        color: #8b0000;
+        font-size: 28px;
+        font-weight: bold;
+        margin-bottom: 4px;
+        text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.6);
+      }
+
+      .prize-panel .prize-name {
+        color: #5c3317;
+        font-size: 18px;
+        margin-bottom: 6px;
+      }
+
+      .prize-panel .prize-count {
+        color: #5c3317;
+        font-size: 15px;
+        font-weight: bold;
+      }
+
+      .prize-panel .idle {
+        color: #5c3317;
         font-size: 16px;
         font-weight: bold;
-        cursor: pointer;
-        transition: all 0.3s;
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
       }
 
-      .count-btn.active {
-        background: linear-gradient(135deg, #ffd700 0%, #ffa500 100%);
-        color: #5c3317;
-        transform: scale(1.2);
-        border: 3px solid #8b4513;
-        box-shadow:
-          0 0 25px rgba(255, 215, 0, 0.8),
-          0 4px 15px rgba(0, 0, 0, 0.4);
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-        font-size: 18px;
-      }
-
-      .count-btn:hover {
-        transform: scale(1.1);
-        background: rgba(255, 215, 0, 0.4);
-        border-color: #8b4513;
-      }
-
-      .count-btn.active:hover {
-        transform: scale(1.2);
-      }
-
-      /* Slot Machine */
       .slot-machine {
         display: none;
         margin: 30px 0;
@@ -413,25 +504,19 @@
       .slot-container {
         display: flex;
         justify-content: center;
-        gap: 20px;
-        flex-wrap: nowrap;
-      }
-
-      .slot-container.count-1 .slot {
-        width: 300px;
-      }
-
-      .slot-container.count-3 .slot {
-        width: 280px;
+        gap: 12px;
+        flex-wrap: wrap;
       }
 
       .slot {
         background: rgba(255, 255, 255, 0.95);
         border: 4px solid #8b4513;
         border-radius: 15px;
-        padding: 30px 20px;
+        padding: 20px 14px;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        flex-shrink: 0;
+        flex: 0 1 220px;
+        min-width: 160px;
+        max-width: 280px;
       }
 
       .slot-name {
@@ -446,6 +531,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        font-size: 22px;
       }
 
       @keyframes rolling {
@@ -458,17 +544,15 @@
       }
 
       .slot-email {
-        font-size: 14px;
+        font-size: 12px;
         color: #666;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+        text-align: center;
       }
 
-      /* Draw Button */
       .draw-btn {
-        font-family:
-          'Songti SC', 'STXingkai', 'Kaiti SC', 'KaiTi', 'STKaiti', 'BiauKai', '楷体', serif;
         width: 100%;
         padding: 20px;
         background: linear-gradient(135deg, rgba(255, 215, 0, 0.7) 0%, rgba(255, 165, 0, 0.7) 100%);
@@ -499,7 +583,6 @@
         cursor: not-allowed;
       }
 
-      /* Results */
       .results {
         display: none;
         margin-top: 20px;
@@ -519,25 +602,19 @@
       .winners-grid {
         display: flex;
         justify-content: center;
-        gap: 15px;
-        flex-wrap: nowrap;
-      }
-
-      .winners-grid.count-1 .winner-card {
-        width: 350px;
-      }
-
-      .winners-grid.count-3 .winner-card {
-        width: 300px;
+        gap: 12px;
+        flex-wrap: wrap;
       }
 
       .winner-card {
         background: linear-gradient(135deg, rgba(255, 215, 0, 0.9) 0%, rgba(255, 165, 0, 0.9) 100%);
-        padding: 20px;
+        padding: 16px;
         border-radius: 15px;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         animation: fadeIn 0.5s ease-out;
-        flex-shrink: 0;
+        flex: 0 1 220px;
+        min-width: 160px;
+        max-width: 280px;
         backdrop-filter: blur(10px);
         -webkit-backdrop-filter: blur(10px);
         border: 3px solid #8b4513;
@@ -557,7 +634,7 @@
       .winner-card h3 {
         color: #5c3317;
         font-weight: bold;
-        margin-bottom: 10px;
+        margin-bottom: 8px;
         overflow: hidden;
         text-overflow: ellipsis;
         word-wrap: break-word;
@@ -566,18 +643,20 @@
         justify-content: center;
         min-height: 32px;
         text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        font-size: 20px;
+        text-align: center;
       }
 
       .winner-card p {
         color: #333;
-        font-size: 14px;
+        font-size: 12px;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
         text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.3);
+        text-align: center;
       }
 
-      /* Modal */
       .modal {
         display: none;
         position: fixed;
@@ -639,25 +718,6 @@
         transform: scale(1.05);
       }
 
-      /* Responsive adjustments */
-      @media (max-width: 992px) {
-        .slot-container {
-          flex-wrap: wrap;
-        }
-
-        .winners-grid {
-          flex-wrap: wrap;
-        }
-
-        .slot-container.count-3 .slot {
-          width: 250px;
-        }
-
-        .winners-grid.count-3 .winner-card {
-          width: 250px;
-        }
-      }
-
       @media (max-width: 768px) {
         .fetch-section {
           max-width: 180px;
@@ -677,7 +737,7 @@
           padding: 8px;
         }
 
-        .reset-btn {
+        .menu-btn {
           padding: 8px 16px;
           font-size: 12px;
         }
@@ -701,161 +761,164 @@
           padding: 10px 20px;
         }
 
-        .count-selector label {
-          font-size: 16px;
+        .prize-panel .prize-level {
+          font-size: 22px;
         }
 
-        .count-btn {
-          padding: 8px 20px;
-          font-size: 14px;
-        }
-
-        .count-btn.active {
-          font-size: 16px;
-        }
-
-        .slot-container.count-1 .slot,
-        .slot-container.count-3 .slot {
-          width: 100%;
-          max-width: 300px;
-        }
-
-        .winners-grid.count-1 .winner-card,
-        .winners-grid.count-3 .winner-card {
-          width: 100%;
-          max-width: 300px;
+        .prize-panel .prize-name {
+          font-size: 15px;
         }
       }
     </style>
   </head>
   <body>
-    <!-- Fireworks Canvas -->
     <canvas id="fireworks"></canvas>
 
-    <!-- Fetch Section - Top Left Corner -->
     <div class="fetch-section">
-      <div class="fetch-info">📋 更新候选名单</div>
+      <div class="fetch-info">同步名单与奖品</div>
       <div class="candidates-info" id="candidatesInfo" style="display: none">
-        <p class="total">可抽取候选人：<span id="availableCount">0</span> 人</p>
-        <p>已抽取：<span id="drawnCount">0</span> 人</p>
+        <button
+          type="button"
+          class="candidates-toggle"
+          id="candidatesToggle"
+          onclick="toggleCandidatesInfo()"
+          aria-expanded="false"
+        >
+          <span>有效候选人：<span id="validCount">0</span> 人</span>
+          <span class="chevron">▾</span>
+        </button>
+        <div class="candidates-details" id="candidatesDetails">
+          <p>剩余可抽：<span id="availableCount">0</span> 人</p>
+          <p>已抽取：<span id="drawnCount">0</span> 人</p>
+          <p>奖品档次：<span id="prizeTierCount">0</span></p>
+        </div>
       </div>
-      <button class="fetch-btn" onclick="fetchCandidates()">🎯 获取候选名单</button>
+      <button class="fetch-btn" id="syncBtn" onclick="syncData()">🔄 同步数据</button>
     </div>
 
-    <!-- Reset Button -->
-    <button class="reset-btn" onclick="showResetModal()">🔄 重置数据</button>
+    <div class="menu-wrap">
+      <button class="menu-btn" id="menuBtn" onclick="toggleMenu(event)">⚙️ 更多操作 ▾</button>
+      <div class="menu-dropdown" id="menuDropdown">
+        <button type="button" onclick="exportPrizeResultsCsv()">导出抽奖结果 CSV</button>
+        <button type="button" onclick="showClearModal()">清除抽奖数据</button>
+        <div class="menu-history" id="historySection">
+          <h4>已开奖记录</h4>
+          <div class="history-list" id="historyList">
+            <p class="empty">暂无开奖记录</p>
+          </div>
+        </div>
+      </div>
+    </div>
 
-    <!-- Audio Control -->
     <div class="audio-control">
       <button class="play-stop-btn" id="playStopBtn" onclick="toggleAudio()">▶️</button>
       <input type="range" min="0" max="100" value="50" class="volume-slider" id="volumeSlider" />
       <label id="volumeLabel">50%</label>
     </div>
 
-    <!-- Notification -->
     <div class="notification" id="notification"></div>
 
-    <!-- Modal -->
-    <div class="modal" id="resetModal">
+    <div class="modal" id="clearModal">
       <div class="modal-content">
-        <h2>⚠️ 确认重置</h2>
-        <p>您确定要重置所有抽奖数据吗？<br />此操作将清除所有已抽取的记录。</p>
+        <h2>⚠️ 确认清除</h2>
+        <p>确定要清除当前抽奖数据吗？<br />将清空 localStorage 中的中奖记录，并从最低奖项重新开始。</p>
         <div class="modal-buttons">
-          <button class="modal-btn confirm-btn" onclick="confirmReset()">确认重置</button>
-          <button class="modal-btn cancel-btn" onclick="closeResetModal()">取消</button>
+          <button class="modal-btn confirm-btn" onclick="confirmClear()">确认清除</button>
+          <button class="modal-btn cancel-btn" onclick="closeClearModal()">取消</button>
         </div>
       </div>
     </div>
 
-    <!-- Container -->
     <div class="container">
-      <!-- Header -->
       <div class="header">
         <h1>🎊 幸运抽奖 🎊</h1>
-        <p style="font-size: 20px">JHUCSSA 2026 春节联欢晚会</p>
+        <p style="font-size: 20px">UCSB Welcome Night</p>
       </div>
 
-      <!-- Lottery Section -->
       <div class="lottery-section">
-        <div class="count-selector">
-          <label>选择抽取人数：</label>
-          <div class="count-buttons">
-            <button class="count-btn active" data-count="1" onclick="selectCount(1)">1人</button>
-            <button class="count-btn" data-count="3" onclick="selectCount(3)">3人</button>
+        <div class="prize-panel" id="prizePanel">
+          <p class="idle" id="prizeIdle">请先点击左上角「同步数据」</p>
+          <div id="prizeActive" style="display: none">
+            <div class="label">当前抽取奖项</div>
+            <div class="prize-level" id="currentPrizeLevel"></div>
+            <div class="prize-name" id="currentPrizeName"></div>
+            <div class="prize-count">抽取人数：<span id="currentPrizeCount">0</span></div>
+          </div>
+          <div id="prizeDone" style="display: none">
+            <p class="idle">🎉 全部奖项已抽取完毕</p>
           </div>
         </div>
 
-        <!-- Slot Machine -->
         <div class="slot-machine" id="slotMachine">
           <div class="slot-container" id="slotContainer"></div>
         </div>
 
-        <!-- Results -->
         <div class="results" id="results">
-          <h2>🎉 中奖名单 🎉</h2>
+          <h2 id="resultsTitle">🎉 中奖名单 🎉</h2>
           <div class="winners-grid" id="winnersList"></div>
         </div>
 
-        <button class="draw-btn" id="drawBtn" onclick="startLottery()" disabled>🎰 开始抽奖</button>
+        <button class="draw-btn" id="drawBtn" onclick="onDrawBtnClick()" disabled>🎰 开始抽奖</button>
       </div>
     </div>
 
-    <!-- Audio -->
     <audio id="lotteryMusic" loop>
       <source src="audio.mp3" type="audio/mpeg" />
     </audio>
 
     <script>
-      // ============================================
-      // CONFIGURATION - Hardcoded URLs
-      // ============================================
-      const CSV_URL =
-        'https://docs.google.com/spreadsheets/d/e/2PACX-1vTs7DBoNo_gEWEO2nmk8D7pPcjWy7UNDWA8T9gHvCbmewtiAKNI5_k8joQcKRcK7Usb4SLyUF6SYPr_/pub?gid=0&single=true&output=csv';
-      const GOOGLE_SCRIPT_URL =
-        'https://script.google.com/macros/s/AKfycbyRBl1jdXpNMz2IQyJCYLLJcB55njkmH0XRE8jAbmUlFBGDRJfYG9VFnndDbNoPK9Tbqw/exec';
+      const STORAGE_KEY = 'ucsbWelcomeNightLottery';
 
-      // ============================================
-      // Global variables
-      // ============================================
-      let candidates = [];
-      let drawnCandidates = [];
-      let selectedCount = 1;
+      let prizeListUrl = '';
+      let candidateListUrl = '';
+
+      // prizes as listed in the sheet (top → bottom = high → low)
+      let prizes = [];
+      // drawing order: lowest first (sheet bottom → top)
+      let drawOrder = [];
+      let currentDrawIndex = 0;
+
+      let allValidCandidates = [];
+      let availableCandidates = [];
+      // [{ level, name, count, winners: [{name,email}] }]
+      let lotteryResults = [];
+
       let isDrawing = false;
+      let showingResults = false;
       let rollingInterval;
       let isAudioPlaying = false;
       let fireworksActive = false;
       let fireworkInterval;
       let animationFrameId;
 
-      // Initialize
       document.addEventListener('DOMContentLoaded', function () {
-        loadDrawnCandidates();
+        loadLotteryState();
         initFireworks();
-        updateCandidatesInfo();
+        updateUI();
         initAudioControl();
+
+        document.addEventListener('click', function (e) {
+          const wrap = document.querySelector('.menu-wrap');
+          if (wrap && !wrap.contains(e.target)) {
+            document.getElementById('menuDropdown').classList.remove('open');
+          }
+        });
       });
 
-      // Initialize audio control
       function initAudioControl() {
         const music = document.getElementById('lotteryMusic');
         const volumeSlider = document.getElementById('volumeSlider');
         const volumeLabel = document.getElementById('volumeLabel');
-
-        // Set initial volume
         music.volume = volumeSlider.value / 100;
-
-        // Volume slider event listener
         volumeSlider.addEventListener('input', function () {
           music.volume = this.value / 100;
           volumeLabel.textContent = this.value + '%';
         });
       }
 
-      // Toggle audio play/stop
       function toggleAudio() {
         const music = document.getElementById('lotteryMusic');
         const playStopBtn = document.getElementById('playStopBtn');
-
         if (isAudioPlaying) {
           music.pause();
           playStopBtn.textContent = '▶️';
@@ -874,119 +937,354 @@
         }
       }
 
-      // Load drawn candidates from localStorage
-      function loadDrawnCandidates() {
-        const stored = localStorage.getItem('drawnCandidates');
-        if (stored) {
-          drawnCandidates = JSON.parse(stored);
+      function toggleMenu(event) {
+        event.stopPropagation();
+        document.getElementById('menuDropdown').classList.toggle('open');
+      }
+
+      function closeMenu() {
+        document.getElementById('menuDropdown').classList.remove('open');
+      }
+
+      function toggleCandidatesInfo() {
+        const info = document.getElementById('candidatesInfo');
+        const toggle = document.getElementById('candidatesToggle');
+        const expanded = info.classList.toggle('expanded');
+        toggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+      }
+
+      function onDrawBtnClick() {
+        if (showingResults) {
+          prepareNextDraw();
+          return;
+        }
+        startLottery();
+      }
+
+      function prepareNextDraw() {
+        showingResults = false;
+        document.getElementById('results').style.display = 'none';
+        document.getElementById('slotMachine').style.display = 'none';
+        updateUI();
+      }
+
+      function parseEnv(text) {
+        const config = {};
+        text.split(/\r?\n/).forEach((line) => {
+          const trimmed = line.trim();
+          if (!trimmed || trimmed.startsWith('#')) return;
+          const eq = trimmed.indexOf('=');
+          if (eq === -1) return;
+          const key = trimmed.slice(0, eq).trim();
+          const value = trimmed.slice(eq + 1).trim();
+          if (key) config[key] = value;
+        });
+        return config;
+      }
+
+      function parseCsv(text) {
+        const rows = [];
+        let row = [];
+        let field = '';
+        let inQuotes = false;
+
+        for (let i = 0; i < text.length; i++) {
+          const c = text[i];
+          const next = text[i + 1];
+
+          if (inQuotes) {
+            if (c === '"' && next === '"') {
+              field += '"';
+              i++;
+            } else if (c === '"') {
+              inQuotes = false;
+            } else {
+              field += c;
+            }
+          } else if (c === '"') {
+            inQuotes = true;
+          } else if (c === ',') {
+            row.push(field.trim());
+            field = '';
+          } else if (c === '\n' || c === '\r') {
+            if (c === '\r' && next === '\n') i++;
+            row.push(field.trim());
+            field = '';
+            if (row.some((cell) => cell !== '')) rows.push(row);
+            row = [];
+          } else {
+            field += c;
+          }
+        }
+
+        if (field.length > 0 || row.length > 0) {
+          row.push(field.trim());
+          if (row.some((cell) => cell !== '')) rows.push(row);
+        }
+
+        return rows;
+      }
+
+      function candidateKey(name, email) {
+        return `${name.trim().toLowerCase()}|${email.trim().toLowerCase()}`;
+      }
+
+      function parsePrizes(csvText) {
+        const rows = parseCsv(csvText);
+        if (rows.length < 2) return [];
+        const list = [];
+        for (let i = 1; i < rows.length; i++) {
+          const level = (rows[i][0] || '').trim();
+          const name = (rows[i][1] || '').trim();
+          const count = parseInt((rows[i][2] || '').trim(), 10);
+          if (!level || !name || !Number.isFinite(count) || count <= 0) continue;
+          list.push({ level, name, count });
+        }
+        return list;
+      }
+
+      function parseCandidates(csvText) {
+        const rows = parseCsv(csvText);
+        if (rows.length < 2) return [];
+        const seen = new Set();
+        const list = [];
+        for (let i = 1; i < rows.length; i++) {
+          const name = (rows[i][0] || '').trim();
+          const email = (rows[i][1] || '').trim();
+          if (!name || !email) continue;
+          if (!email.toLowerCase().endsWith('@ucsb.edu')) continue;
+          const key = candidateKey(name, email);
+          if (seen.has(key)) continue;
+          seen.add(key);
+          list.push({ name, email });
+        }
+        return list;
+      }
+
+      function getDrawnKeys() {
+        const keys = new Set();
+        lotteryResults.forEach((result) => {
+          result.winners.forEach((w) => keys.add(candidateKey(w.name, w.email)));
+        });
+        return keys;
+      }
+
+      function rebuildAvailableCandidates() {
+        const drawn = getDrawnKeys();
+        availableCandidates = allValidCandidates.filter(
+          (c) => !drawn.has(candidateKey(c.name, c.email))
+        );
+      }
+
+      function saveLotteryState() {
+        const payload = {
+          lotteryResults,
+          currentDrawIndex,
+          allValidCandidates,
+          prizes,
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+      }
+
+      function loadLotteryState() {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (!stored) return;
+        try {
+          const data = JSON.parse(stored);
+          lotteryResults = Array.isArray(data.lotteryResults) ? data.lotteryResults : [];
+          currentDrawIndex = Number.isFinite(data.currentDrawIndex) ? data.currentDrawIndex : 0;
+          allValidCandidates = Array.isArray(data.allValidCandidates)
+            ? data.allValidCandidates
+            : [];
+          prizes = Array.isArray(data.prizes) ? data.prizes : [];
+          drawOrder = [...prizes].reverse();
+          rebuildAvailableCandidates();
+        } catch (e) {
+          console.error('Failed to load lottery state', e);
         }
       }
 
-      // Save drawn candidates to localStorage
-      function saveDrawnCandidates() {
-        localStorage.setItem('drawnCandidates', JSON.stringify(drawnCandidates));
+      function getCurrentPrize() {
+        if (currentDrawIndex < 0 || currentDrawIndex >= drawOrder.length) return null;
+        return drawOrder[currentDrawIndex];
       }
 
-      // Update candidates info display
-      function updateCandidatesInfo() {
+      function updateUI() {
         const candidatesInfo = document.getElementById('candidatesInfo');
-        const availableCount = document.getElementById('availableCount');
-        const drawnCount = document.getElementById('drawnCount');
+        const drawBtn = document.getElementById('drawBtn');
+        const prizeIdle = document.getElementById('prizeIdle');
+        const prizeActive = document.getElementById('prizeActive');
+        const prizeDone = document.getElementById('prizeDone');
 
-        if (candidates.length > 0 || drawnCandidates.length > 0) {
-          candidatesInfo.style.display = 'block';
-          availableCount.textContent = candidates.length;
-          drawnCount.textContent = drawnCandidates.length;
+        const hasData = allValidCandidates.length > 0 || prizes.length > 0;
+        candidatesInfo.style.display = hasData ? 'block' : 'none';
+        document.getElementById('validCount').textContent = allValidCandidates.length;
+        document.getElementById('availableCount').textContent = availableCandidates.length;
+        document.getElementById('drawnCount').textContent = getDrawnKeys().size;
+        document.getElementById('prizeTierCount').textContent = prizes.length;
+
+        const current = getCurrentPrize();
+        const allDone = drawOrder.length > 0 && currentDrawIndex >= drawOrder.length;
+
+        if (!drawOrder.length) {
+          prizeIdle.style.display = 'block';
+          prizeIdle.textContent = '请先点击左上角「同步数据」';
+          prizeActive.style.display = 'none';
+          prizeDone.style.display = 'none';
+          drawBtn.disabled = true;
+          drawBtn.textContent = '🎰 开始抽奖';
+        } else if (showingResults && allDone) {
+          prizeIdle.style.display = 'none';
+          prizeActive.style.display = 'none';
+          prizeDone.style.display = 'block';
+          drawBtn.disabled = true;
+          drawBtn.textContent = '抽奖已经结束';
+        } else if (showingResults) {
+          // Keep showing the prize that was just drawn (previous index)
+          const last = lotteryResults[lotteryResults.length - 1];
+          prizeIdle.style.display = 'none';
+          prizeDone.style.display = 'none';
+          prizeActive.style.display = 'block';
+          if (last) {
+            document.getElementById('currentPrizeLevel').textContent = last.level;
+            document.getElementById('currentPrizeName').textContent = last.name;
+            document.getElementById('currentPrizeCount').textContent = last.count;
+          }
+          drawBtn.disabled = false;
+          drawBtn.textContent = '准备下个抽奖';
+        } else if (allDone) {
+          prizeIdle.style.display = 'none';
+          prizeActive.style.display = 'none';
+          prizeDone.style.display = 'block';
+          drawBtn.disabled = true;
+          drawBtn.textContent = '抽奖已经结束';
+        } else {
+          prizeIdle.style.display = 'none';
+          prizeDone.style.display = 'none';
+          prizeActive.style.display = 'block';
+          document.getElementById('currentPrizeLevel').textContent = current.level;
+          document.getElementById('currentPrizeName').textContent = current.name;
+          document.getElementById('currentPrizeCount').textContent = current.count;
+          const canDraw =
+            !isDrawing &&
+            availableCandidates.length >= current.count &&
+            current.count > 0;
+          drawBtn.disabled = !canDraw;
+          drawBtn.textContent = `🎰 抽取 ${current.level}（${current.count}人）`;
         }
+
+        renderHistory();
       }
 
-      // Show notification
-      function showNotification(message) {
+      function renderHistory() {
+        const list = document.getElementById('historyList');
+        if (!lotteryResults.length) {
+          list.innerHTML = '<p class="empty">暂无开奖记录</p>';
+          return;
+        }
+        list.innerHTML = lotteryResults
+          .map((r) => {
+            const names = r.winners.map((w) => w.name).join('、');
+            return `<div class="history-item"><strong>${escapeHtml(r.level)}</strong> · ${escapeHtml(r.name)}（${r.count}）— ${escapeHtml(names)}</div>`;
+          })
+          .join('');
+      }
+
+      function escapeHtml(str) {
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      }
+
+      function showNotification(message, durationMs) {
         const notification = document.getElementById('notification');
         notification.textContent = message;
         notification.style.display = 'block';
         setTimeout(() => {
           notification.style.display = 'none';
-        }, 3000);
+        }, durationMs || 3500);
       }
 
-      // Calculate font size based on text length
       function calculateFontSize(text, maxWidth) {
         const baseSize = 28;
-        const minSize = 16;
-        const charWidth = 20; // Approximate width per character
-
+        const minSize = 14;
+        const charWidth = 18;
         const estimatedWidth = text.length * charWidth;
-
-        if (estimatedWidth <= maxWidth) {
-          return baseSize;
-        }
-
-        const ratio = maxWidth / estimatedWidth;
-        const calculatedSize = Math.max(baseSize * ratio, minSize);
-
-        return Math.floor(calculatedSize);
+        if (estimatedWidth <= maxWidth) return baseSize;
+        return Math.floor(Math.max(baseSize * (maxWidth / estimatedWidth), minSize));
       }
 
-      // Fetch candidates from CSV
-      async function fetchCandidates() {
+      async function syncData() {
+        const syncBtn = document.getElementById('syncBtn');
+        syncBtn.disabled = true;
         try {
-          showNotification('📥 正在获取候选名单...');
+          showNotification('📥 正在同步 input.env 与表格数据...');
 
-          const response = await fetch(CSV_URL);
-          const text = await response.text();
-
-          // Parse CSV
-          const lines = text.split('\n').filter((line) => line.trim());
-          candidates = [];
-
-          // Skip header row
-          for (let i = 1; i < lines.length; i++) {
-            const parts = lines[i].split(',').map((part) => part.trim());
-            if (parts.length >= 2 && parts[0] && parts[1]) {
-              const candidate = {
-                name: parts[0],
-                email: parts[1],
-              };
-
-              // Check if already drawn
-              if (!drawnCandidates.some((drawn) => drawn.email === candidate.email)) {
-                candidates.push(candidate);
-              }
-            }
+          const envRes = await fetch('input.env?t=' + Date.now());
+          if (!envRes.ok) throw new Error('无法读取 input.env');
+          const env = parseEnv(await envRes.text());
+          prizeListUrl = env.PRIZE_LIST || '';
+          candidateListUrl = env.CANDIDATE_LIST || '';
+          if (!prizeListUrl || !candidateListUrl) {
+            throw new Error('input.env 缺少 PRIZE_LIST 或 CANDIDATE_LIST');
           }
 
-          showNotification(`✅ 成功获取 ${candidates.length} 位候选人！`);
-          document.getElementById('drawBtn').disabled = candidates.length === 0;
-          updateCandidatesInfo();
+          const [prizeRes, candidateRes] = await Promise.all([
+            fetch(prizeListUrl),
+            fetch(candidateListUrl),
+          ]);
+          if (!prizeRes.ok || !candidateRes.ok) {
+            throw new Error('表格数据请求失败');
+          }
 
-          // Hide previous results
+          const [prizeText, candidateText] = await Promise.all([
+            prizeRes.text(),
+            candidateRes.text(),
+          ]);
+
+          prizes = parsePrizes(prizeText);
+          drawOrder = [...prizes].reverse();
+          allValidCandidates = parseCandidates(candidateText);
+
+          // Keep progress if prizes still match previous draw steps; otherwise restart index safely
+          if (currentDrawIndex > drawOrder.length) currentDrawIndex = drawOrder.length;
+          rebuildAvailableCandidates();
+          saveLotteryState();
+          updateUI();
+
+          showNotification(
+            `✅ 同步完成：有效候选人 ${allValidCandidates.length} 人，奖品档次 ${prizes.length} 个`,
+            4500
+          );
+
           document.getElementById('results').style.display = 'none';
           document.getElementById('slotMachine').style.display = 'none';
+          // keep showingResults as-is only if mid-round; after sync stay on current prize ready state
+          if (showingResults) {
+            showingResults = false;
+            updateUI();
+          }
         } catch (error) {
-          showNotification('❌ 获取数据失败，请检查网络连接！');
           console.error(error);
+          showNotification('❌ 同步失败：' + (error.message || '请检查网络与 input.env'));
+        } finally {
+          syncBtn.disabled = false;
         }
       }
 
-      // Select count
-      function selectCount(count) {
-        selectedCount = count;
-        document.querySelectorAll('.count-btn').forEach((btn) => {
-          btn.classList.remove('active');
-        });
-        event.target.classList.add('active');
-      }
-
-      // Start lottery
       function startLottery() {
         if (isDrawing) return;
-        if (candidates.length === 0) {
-          showNotification('❌ 请先获取候选名单！');
+        const prize = getCurrentPrize();
+        if (!prize) {
+          showNotification('❌ 没有待抽取的奖项，请先同步数据');
           return;
         }
-        if (candidates.length < selectedCount) {
-          showNotification(`❌ 候选人数量不足！剩余 ${candidates.length} 人`);
+        if (availableCandidates.length < prize.count) {
+          showNotification(
+            `❌ 候选人不足：需要 ${prize.count} 人，剩余 ${availableCandidates.length} 人`
+          );
           return;
         }
 
@@ -994,180 +1292,167 @@
         document.getElementById('drawBtn').disabled = true;
         document.getElementById('results').style.display = 'none';
 
-        // Show slot machine
         const slotMachine = document.getElementById('slotMachine');
         const slotContainer = document.getElementById('slotContainer');
         slotMachine.style.display = 'block';
         slotContainer.innerHTML = '';
 
-        // Add count class to container
-        slotContainer.className = 'slot-container count-' + selectedCount;
-
-        // Create slots
-        for (let i = 0; i < selectedCount; i++) {
+        for (let i = 0; i < prize.count; i++) {
           const slot = document.createElement('div');
           slot.className = 'slot';
           slot.innerHTML = `
-                    <div class="slot-name" id="slotName${i}">???</div>
-                    <div class="slot-email" id="slotEmail${i}">???</div>
-                `;
+            <div class="slot-name" id="slotName${i}">???</div>
+            <div class="slot-email" id="slotEmail${i}">???</div>
+          `;
           slotContainer.appendChild(slot);
         }
 
-        // Trigger fireworks
         triggerFireworks();
 
-        // Start rolling animation
         rollingInterval = setInterval(() => {
-          for (let i = 0; i < selectedCount; i++) {
-            const randomCandidate = candidates[Math.floor(Math.random() * candidates.length)];
+          for (let i = 0; i < prize.count; i++) {
+            const randomCandidate =
+              availableCandidates[Math.floor(Math.random() * availableCandidates.length)];
             const slotNameEl = document.getElementById(`slotName${i}`);
             slotNameEl.textContent = randomCandidate.name;
-
-            // Calculate and set font size
-            const slotWidth = slotNameEl.parentElement.offsetWidth - 40; // Subtract padding
-            const fontSize = calculateFontSize(randomCandidate.name, slotWidth);
-            slotNameEl.style.fontSize = fontSize + 'px';
-
+            const slotWidth = slotNameEl.parentElement.offsetWidth - 28;
+            slotNameEl.style.fontSize = calculateFontSize(randomCandidate.name, slotWidth) + 'px';
             document.getElementById(`slotEmail${i}`).textContent = randomCandidate.email;
           }
         }, 100);
 
-        // Stop after 3 seconds and show results
         setTimeout(() => {
           clearInterval(rollingInterval);
-          showResults();
+          finishDraw(prize);
         }, 3000);
       }
 
-      // Show results
-      async function showResults() {
-        // Stop fireworks
+      function finishDraw(prize) {
         stopFireworks();
 
-        // Select winners
+        const pool = [...availableCandidates];
         const winners = [];
-        const availableCandidates = [...candidates];
-
-        for (let i = 0; i < selectedCount; i++) {
-          const randomIndex = Math.floor(Math.random() * availableCandidates.length);
-          const winner = availableCandidates.splice(randomIndex, 1)[0];
+        for (let i = 0; i < prize.count; i++) {
+          const randomIndex = Math.floor(Math.random() * pool.length);
+          const winner = pool.splice(randomIndex, 1)[0];
           winners.push(winner);
 
-          // Update slot with final winner
           const slotNameEl = document.getElementById(`slotName${i}`);
           slotNameEl.textContent = winner.name;
           slotNameEl.style.animation = 'none';
-
-          // Calculate and set final font size
-          const slotWidth = slotNameEl.parentElement.offsetWidth - 40;
-          const fontSize = calculateFontSize(winner.name, slotWidth);
-          slotNameEl.style.fontSize = fontSize + 'px';
-
+          const slotWidth = slotNameEl.parentElement.offsetWidth - 28;
+          slotNameEl.style.fontSize = calculateFontSize(winner.name, slotWidth) + 'px';
           document.getElementById(`slotEmail${i}`).textContent = winner.email;
         }
 
-        // Save to localStorage
-        drawnCandidates.push(...winners);
-        saveDrawnCandidates();
-
-        // Remove winners from candidates
-        winners.forEach((winner) => {
-          const index = candidates.findIndex((c) => c.email === winner.email);
-          if (index > -1) {
-            candidates.splice(index, 1);
-          }
+        lotteryResults.push({
+          level: prize.level,
+          name: prize.name,
+          count: prize.count,
+          winners,
         });
+        currentDrawIndex += 1;
+        rebuildAvailableCandidates();
+        saveLotteryState();
 
-        // Update info
-        updateCandidatesInfo();
-
-        // Show results
         setTimeout(() => {
           document.getElementById('slotMachine').style.display = 'none';
           const results = document.getElementById('results');
           const winnersList = document.getElementById('winnersList');
+          document.getElementById('resultsTitle').textContent =
+            `🎉 ${prize.level} · ${prize.name} 🎉`;
           winnersList.innerHTML = '';
-
-          // Add count class to winners grid
-          winnersList.className = 'winners-grid count-' + selectedCount;
 
           winners.forEach((winner, index) => {
             const card = document.createElement('div');
             card.className = 'winner-card';
-            card.style.animationDelay = `${index * 0.2}s`;
+            card.style.animationDelay = `${index * 0.08}s`;
             card.innerHTML = `
-                        <h3 class="winner-name">🎊 ${winner.name}</h3>
-                        <p>📧 ${winner.email}</p>
-                    `;
+              <h3 class="winner-name">🎊 ${escapeHtml(winner.name)}</h3>
+              <p>📧 ${escapeHtml(winner.email)}</p>
+            `;
             winnersList.appendChild(card);
-
-            // Calculate and set font size for winner name
             setTimeout(() => {
               const nameEl = card.querySelector('.winner-name');
-              const cardWidth = card.offsetWidth - 40;
-              const fontSize = calculateFontSize(winner.name, cardWidth);
-              nameEl.style.fontSize = fontSize + 'px';
-            }, 100);
+              const cardWidth = card.offsetWidth - 32;
+              nameEl.style.fontSize = calculateFontSize(winner.name, cardWidth) + 'px';
+            }, 50);
           });
 
           results.style.display = 'block';
           isDrawing = false;
-          document.getElementById('drawBtn').disabled = candidates.length === 0;
-
-          // Send to Google Script
-          sendToGoogleScript(winners);
-        }, 1000);
+          showingResults = true;
+          updateUI();
+          showNotification(`✅ ${prize.level} 抽取完成！`, 2500);
+        }, 900);
       }
 
-      // Send data to Google Script
-      async function sendToGoogleScript(winners) {
-        try {
-          const response = await fetch(GOOGLE_SCRIPT_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              winners: winners,
-              timestamp: new Date().toISOString(),
-            }),
-          });
-          console.log('Data sent to Google Script successfully');
-        } catch (error) {
-          console.error('Error sending to Google Script:', error);
+      function csvEscape(value) {
+        const s = String(value ?? '');
+        if (/[",\n\r]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+        return s;
+      }
+
+      function exportPrizeResultsCsv() {
+        closeMenu();
+        if (!lotteryResults.length) {
+          showNotification('❌ 暂无抽奖结果可导出');
+          return;
         }
+
+        const lines = [['奖品等级', '奖品名称', '姓名', '邮箱'].map(csvEscape).join(',')];
+        lotteryResults.forEach((result) => {
+          result.winners.forEach((w) => {
+            lines.push(
+              [result.level, result.name, w.name, w.email].map(csvEscape).join(',')
+            );
+          });
+        });
+
+        const blob = new Blob(['\uFEFF' + lines.join('\n')], {
+          type: 'text/csv;charset=utf-8;',
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `welcome-night-lottery-${new Date().toISOString().slice(0, 10)}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showNotification('✅ 抽奖结果 CSV 已导出');
       }
 
-      // Show reset modal
-      function showResetModal() {
-        document.getElementById('resetModal').style.display = 'flex';
+      function showClearModal() {
+        closeMenu();
+        document.getElementById('clearModal').style.display = 'flex';
       }
 
-      // Close reset modal
-      function closeResetModal() {
-        document.getElementById('resetModal').style.display = 'none';
+      function closeClearModal() {
+        document.getElementById('clearModal').style.display = 'none';
       }
 
-      // Confirm reset
-      function confirmReset() {
-        localStorage.removeItem('drawnCandidates');
-        drawnCandidates = [];
-        closeResetModal();
-        showNotification('✅ 数据已重置！');
-
-        // Reload candidates
-        fetchCandidates();
+      function confirmClear() {
+        lotteryResults = [];
+        currentDrawIndex = 0;
+        showingResults = false;
+        rebuildAvailableCandidates();
+        if (prizes.length || allValidCandidates.length) {
+          saveLotteryState();
+        } else {
+          localStorage.removeItem(STORAGE_KEY);
+        }
+        closeClearModal();
+        document.getElementById('results').style.display = 'none';
+        document.getElementById('slotMachine').style.display = 'none';
+        updateUI();
+        showNotification('✅ 抽奖数据已清除，将从最低奖项重新开始');
       }
 
-      // Fireworks
       function initFireworks() {
         const canvas = document.getElementById('fireworks');
-        const ctx = canvas.getContext('2d');
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
-
         window.addEventListener('resize', () => {
           canvas.width = window.innerWidth;
           canvas.height = window.innerHeight;
@@ -1177,7 +1462,6 @@
       function triggerFireworks() {
         if (fireworksActive) return;
         fireworksActive = true;
-
         const canvas = document.getElementById('fireworks');
         const ctx = canvas.getContext('2d');
         const particles = [];
@@ -1187,53 +1471,43 @@
           const y = Math.random() * canvas.height * 0.5;
           const colors = ['#FFD700', '#FF6347', '#FFA500', '#FF1493', '#00FF00'];
           const color = colors[Math.floor(Math.random() * colors.length)];
-
           for (let i = 0; i < 30; i++) {
             particles.push({
-              x: x,
-              y: y,
+              x,
+              y,
               vx: (Math.random() - 0.5) * 8,
               vy: (Math.random() - 0.5) * 8,
               life: 100,
-              color: color,
+              color,
             });
           }
         }
 
         function animate() {
           if (!fireworksActive) {
-            // Clear canvas completely when stopping
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             return;
           }
-
           ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
           ctx.fillRect(0, 0, canvas.width, canvas.height);
-
           for (let i = particles.length - 1; i >= 0; i--) {
             const p = particles[i];
             p.x += p.vx;
             p.y += p.vy;
             p.vy += 0.1;
             p.life--;
-
             if (p.life <= 0) {
               particles.splice(i, 1);
               continue;
             }
-
             ctx.fillStyle = p.color;
             ctx.globalAlpha = p.life / 100;
             ctx.beginPath();
             ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
             ctx.fill();
           }
-
           ctx.globalAlpha = 1;
-
-          if (fireworksActive) {
-            animationFrameId = requestAnimationFrame(animate);
-          }
+          if (fireworksActive) animationFrameId = requestAnimationFrame(animate);
         }
 
         fireworkInterval = setInterval(createFirework, 300);
@@ -1250,8 +1524,6 @@
           cancelAnimationFrame(animationFrameId);
           animationFrameId = null;
         }
-
-        // Clear the canvas completely
         const canvas = document.getElementById('fireworks');
         const ctx = canvas.getContext('2d');
         ctx.clearRect(0, 0, canvas.width, canvas.height);
